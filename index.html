@@ -54,6 +54,11 @@ body{font-family:var(--font-sans);background:
 .btn-danger-ghost{background:transparent;border-color:transparent;color:var(--red);padding:6px 8px;box-shadow:none}.btn-danger-ghost:hover{background:#fdeaec;box-shadow:none;transform:none}
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn-xs{padding:4px 10px;font-size:11px;border-radius:999px}
+.btn-amber{background:linear-gradient(135deg,var(--amber),#c27313);color:#fff;border-color:transparent}.btn-amber:hover{background:linear-gradient(135deg,#c27313,var(--amber));box-shadow:0 8px 18px -4px rgba(224,138,30,0.45)}
+
+/* Control de Edición Global */
+body.is-locked .only-editable { display: none !important; }
+body.is-locked .proceso-item, body.is-locked .item-star-toggle, body.is-locked .img-box { cursor: not-allowed !important; pointer-events: none !important; opacity: 0.65; }
 
 /* Nave cards */
 .nave-card{background:var(--color-background-primary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:1.15rem;overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow 0.25s, transform 0.25s}
@@ -168,6 +173,35 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 .select-opt:hover { background: var(--color-background-secondary); }
 .select-opt.selected { border-color: var(--navy); background: #eef2ff; color: var(--navy); font-weight: 700; box-shadow:0 0 0 3px rgba(79,70,229,0.1) }
 
+/* Modal Contraseña - rediseño */
+#modal-auth .modal { width: 380px; text-align: center; padding: 2.1rem 1.85rem 1.85rem; position: relative; overflow: hidden; }
+#modal-auth .modal::before { content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%); width:260px; height:180px; background: radial-gradient(circle, rgba(124,58,237,0.16) 0%, transparent 70%); pointer-events:none; }
+#modal-auth .modal-header { justify-content: flex-end; margin-bottom: -0.4rem; position:relative; z-index:1; }
+#modal-auth .modal-header h2 { display:none; }
+.auth-icon-wrap { width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, var(--navy), var(--accent)); display:flex; align-items:center; justify-content:center; margin: 0 auto 14px; box-shadow: 0 10px 22px -6px rgba(79,70,229,0.5); position:relative; z-index:1; }
+.auth-icon-wrap i { font-size: 28px; color:#fff; }
+.auth-title { font-size: 18px; font-weight: 800; color: var(--color-text-primary); letter-spacing:-0.01em; margin-bottom: 4px; position:relative; z-index:1; }
+.auth-subtitle { font-size: 12.5px; color: var(--color-text-secondary); margin-bottom: 20px; font-weight:500; position:relative; z-index:1; }
+#modal-auth .form-group { position:relative; z-index:1; }
+#modal-auth .form-input { text-align: center; letter-spacing: 6px; font-size: 19px; font-weight:700; padding: 13px; border-radius: 14px; }
+#modal-auth .form-footer { justify-content: center; position:relative; z-index:1; }
+.auth-shake { animation: authShake 0.4s ease; }
+@keyframes authShake { 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-5px)} 40%,60%{transform:translateX(5px)} }
+
+/* Acceso oculto a gestión de contraseñas */
+.auth-hidden-trigger { position:absolute; bottom:10px; right:14px; width:16px; height:16px; opacity:0.1; cursor:pointer; background:none; border:none; padding:0; color:var(--color-text-secondary); transition:opacity 0.2s; z-index:2; }
+.auth-hidden-trigger:hover { opacity:0.55; }
+.auth-hidden-trigger i { font-size:14px; }
+
+/* Modal Gestión de Accesos */
+#modal-manage-access .modal { width: 420px; }
+.access-list { display:flex; flex-direction:column; gap:6px; max-height: 220px; overflow-y:auto; margin-bottom: 12px; }
+.access-chip { display:flex; align-items:center; justify-content:space-between; background:var(--color-background-secondary); border:1px solid var(--color-border-secondary); border-radius:10px; padding:8px 12px; font-size:13px; font-weight:700; letter-spacing:1px; color:var(--color-text-primary); }
+.access-chip .del-access { background:none; border:none; cursor:pointer; color:var(--color-text-secondary); font-size:14px; padding:2px; display:flex; opacity:0.6; transition:all 0.15s; }
+.access-chip .del-access:hover { opacity:1; color:var(--red); }
+.access-add-row { display:flex; gap:8px; }
+.access-empty { font-size:12px; color:var(--color-text-secondary); text-align:center; padding: 10px 0; }
+
 /* Image Viewer Modal */
 #modal-view-img { z-index: 999; cursor: zoom-out; }
 #view-img-element { max-width: 90vw; max-height: 90vh; border-radius: 14px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain; }
@@ -200,13 +234,13 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
-<body>
+<body class="is-locked">
 
 <div class="app">
   <div class="top-bar">
     <div class="top-bar-left">
       <div>
-        <h1>Errores y Mejoras de Producción</h1>
+        <h1>Errores y Mejoras de Production</h1>
         <p>Fecha: <span id="current-date">16/07/2026</span></p>
         <p style="font-size: 11px; margin-top: 4px; color: var(--color-text-secondary);">
           ✔️ = Correcto (no requiere cambios). &nbsp;|&nbsp; ❌ = Cambiar el plano, habilitado o etiqueta (requiere corrección).
@@ -214,14 +248,60 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
       </div>
     </div>
     <div class="top-bar-right">
-      <button class="btn btn-green" onclick="triggerImport()" title="Recupera información de un archivo anterior"><i class="ti ti-upload" aria-hidden="true"></i> Importar Datos</button>
-      <button class="btn btn-purple" onclick="openAddNave()"><i class="ti ti-plus" aria-hidden="true"></i> Nuevo mueble</button>
-      <button class="btn" onclick="openExport('html')" title="Guarda el proyecto en el archivo original de forma rápida"><i class="ti ti-device-floppy" aria-hidden="true"></i> Guardar Proyecto (HTML)</button>
+      <button class="btn btn-amber" id="btn-lock-toggle" onclick="handleLockToggle()" title="Controlar modo de edición"><i class="ti ti-lock"></i> MODO LECTURA 🔒</button>
+      <button class="btn btn-green only-editable" onclick="triggerImport()" title="Recupera información de un archivo anterior"><i class="ti ti-upload" aria-hidden="true"></i> Importar Datos</button>
+      <button class="btn btn-purple only-editable" onclick="openAddNave()"><i class="ti ti-plus" aria-hidden="true"></i> Nuevo mueble</button>
+      <button class="btn only-editable" onclick="openExport('html')" title="Guarda el proyecto en el archivo original de forma rápida"><i class="ti ti-device-floppy" aria-hidden="true"></i> Guardar Proyecto (HTML)</button>
       <button class="btn btn-navy" onclick="openExport('pdf')" title="Exporta un documento limpio listo para imprimir"><i class="ti ti-file-text" aria-hidden="true"></i> Exportar PDF Final</button>
     </div>
   </div>
 
   <div id="naves-container"></div>
+</div>
+
+<!-- Modal de Autenticación -->
+<div class="modal-bg" id="modal-auth">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Permiso de Edición</h2>
+      <button class="btn-ghost btn" onclick="closeModal('modal-auth')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="auth-icon-wrap"><i class="ti ti-shield-lock"></i></div>
+    <div class="auth-title">Permiso de Edición</div>
+    <div class="auth-subtitle">Ingresa la contraseña de producción para desbloquear</div>
+    <div class="form-group">
+      <input class="form-input" type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')validatePassword()">
+    </div>
+    <div class="form-footer" style="justify-content: center; padding-top: 1rem; border-top: none; margin-top: 0.5rem;">
+      <button class="btn" onclick="closeModal('modal-auth')">Cancelar</button>
+      <button class="btn btn-navy" onclick="validatePassword()">Desbloquear</button>
+    </div>
+    <button class="auth-hidden-trigger" onclick="openManageAccess()" aria-label=""><i class="ti ti-point"></i></button>
+  </div>
+</div>
+
+<!-- Modal Oculto: Gestión de Accesos -->
+<div class="modal-bg" id="modal-manage-access">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Administrar Accesos</h2>
+      <button class="btn-ghost btn" onclick="closeModal('modal-manage-access')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contraseñas activas</label>
+      <div class="access-list" id="access-list"></div>
+    </div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">Agregar nueva contraseña</label>
+      <div class="access-add-row">
+        <input class="form-input" type="text" id="new-access-password" placeholder="Ej. Inge12345" onkeydown="if(event.key==='Enter')addAccessPassword()">
+        <button class="btn btn-purple btn-sm" onclick="addAccessPassword()" style="flex-shrink:0;"><i class="ti ti-plus"></i> Agregar</button>
+      </div>
+    </div>
+    <div class="form-footer" style="justify-content: center;">
+      <button class="btn btn-navy" onclick="closeModal('modal-manage-access')">Listo</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-bg" id="modal-nave">
@@ -343,13 +423,105 @@ document.getElementById('current-date').textContent = new Date().toLocaleDateStr
 // Variables Globales
 let currentNaveId=null, currentImgNaveId=null, editingItemId=null, exportType=null;
 let newModels=[], newNaveSelected='NAVE 2', newTipo='ambos', newCat='error';
+let isEditableMode = false;
 
 // Referencia global al archivo para guardado rápido
 let fileHandle = null;
 
 function uid(){return 'x'+Math.random().toString(36).slice(2,9)}
 
+/* ---- Gestión de Permisos Globales ---- */
+function handleLockToggle() {
+  if (isEditableMode) {
+    // Si está desbloqueado, bloquear inmediatamente sin pedir clave
+    isEditableMode = false;
+    document.body.classList.add('is-locked');
+    const btn = document.getElementById('btn-lock-toggle');
+    btn.className = 'btn btn-amber';
+    btn.innerHTML = '<i class="ti ti-lock"></i> MODO LECTURA 🔒';
+    cancelEdit();
+  } else {
+    // Si está bloqueado, abrir ventana flotante para la clave
+    document.getElementById('auth-password').value = '';
+    document.getElementById('modal-auth').classList.add('open');
+    setTimeout(() => document.getElementById('auth-password').focus(), 100);
+  }
+}
+
+function ensureAccessPasswords() {
+  if (!data.accessPasswords || !Array.isArray(data.accessPasswords) || data.accessPasswords.length === 0) {
+    data.accessPasswords = ['Inge10306', 'Inge08722'];
+  }
+}
+
+function validatePassword() {
+  ensureAccessPasswords();
+  const inputPass = document.getElementById('auth-password').value;
+  if (data.accessPasswords.includes(inputPass)) {
+    isEditableMode = true;
+    document.body.classList.remove('is-locked');
+    const btn = document.getElementById('btn-lock-toggle');
+    btn.className = 'btn btn-green';
+    btn.innerHTML = '<i class="ti ti-lock-open"></i> MODO EDICIÓN 🔓';
+    closeModal('modal-auth');
+  } else {
+    const modal = document.querySelector('#modal-auth .modal');
+    modal.classList.remove('auth-shake');
+    void modal.offsetWidth;
+    modal.classList.add('auth-shake');
+    document.getElementById('auth-password').focus();
+  }
+}
+
+/* ---- Gestión oculta de accesos (contraseñas adicionales) ---- */
+function openManageAccess() {
+  ensureAccessPasswords();
+  renderAccessList();
+  document.getElementById('new-access-password').value = '';
+  document.getElementById('modal-manage-access').classList.add('open');
+}
+
+function renderAccessList() {
+  ensureAccessPasswords();
+  const list = document.getElementById('access-list');
+  if (data.accessPasswords.length === 0) {
+    list.innerHTML = '<div class="access-empty">No hay contraseñas registradas.</div>';
+    return;
+  }
+  list.innerHTML = data.accessPasswords.map((p, idx) => `
+    <div class="access-chip">
+      <span>${p}</span>
+      <button class="del-access" onclick="deleteAccessPassword(${idx})" title="Eliminar"><i class="ti ti-trash"></i></button>
+    </div>
+  `).join('');
+}
+
+function addAccessPassword() {
+  ensureAccessPasswords();
+  const input = document.getElementById('new-access-password');
+  const val = input.value.trim();
+  if (!val) return;
+  if (data.accessPasswords.includes(val)) {
+    alert('Esa contraseña ya existe.');
+    return;
+  }
+  data.accessPasswords.push(val);
+  input.value = '';
+  renderAccessList();
+}
+
+function deleteAccessPassword(idx) {
+  ensureAccessPasswords();
+  if (data.accessPasswords.length <= 1) {
+    alert('Debe quedar al menos una contraseña activa.');
+    return;
+  }
+  data.accessPasswords.splice(idx, 1);
+  renderAccessList();
+}
+
 function toggleItemStar(naveId, itemId){
+  if (!isEditableMode) return;
   const nave=data.naves.find(n=>n.id===naveId);
   if(!nave) return;
   const item=nave.items.find(i=>i.id===itemId);
@@ -358,6 +530,7 @@ function toggleItemStar(naveId, itemId){
 
 function toggleProceso(naveId, itemId, field, el, event) {
   if(event) event.stopPropagation();
+  if (!isEditableMode) return;
   const nave = data.naves.find(n => n.id === naveId);
   if(!nave) return;
   const item = nave.items.find(i => i.id === itemId);
@@ -396,7 +569,7 @@ function dotClass(t){return t==='error'?'dot-error':t==='ajuste'?'dot-ajuste':'d
 
 function renderItemCard(item, naveId){
   const editing=editingItemId===item.id;
-  if(editing){
+  if(editing && isEditableMode){
     return `<div class="item-card" id="ic-${item.id}">
       <div class="item-dot ${dotClass(item.type)}" style="margin-top:8px"></div>
       <div class="item-content">
@@ -434,7 +607,7 @@ function renderItemCard(item, naveId){
     <div class="item-content">
       <div class="item-title-row">
         <span class="item-title-text">${escHtml(item.title)}</span>
-        <div class="item-actions-row">
+        <div class="item-actions-row only-editable">
           <button class="btn btn-ghost" title="Editar" onclick="startEdit('${item.id}')"><i class="ti ti-pencil" style="font-size:13px"></i></button>
           <button class="btn btn-danger-ghost" title="Eliminar" onclick="removeItem('${naveId}','${item.id}')"><i class="ti ti-trash" style="font-size:13px"></i></button>
         </div>
@@ -462,7 +635,7 @@ function renderNave(nave, index, total){
     galleryHtml += `
       <div class="img-item">
         <img src="${img}" alt="Mueble" title="Haz clic para ampliar" onclick="viewImage('${img}')" />
-        <button class="del-img-btn" onclick="removeImg('${nave.id}', ${idx})" title="Eliminar imagen"><i class="ti ti-trash"></i></button>
+        <button class="del-img-btn only-editable" onclick="removeImg('${nave.id}', ${idx})" title="Eliminar imagen"><i class="ti ti-trash"></i></button>
       </div>`;
   });
   if (nave.images.length < 6) {
@@ -476,7 +649,6 @@ function renderNave(nave, index, total){
   galleryHtml += '</div>';
 
   const modelsHtml=nave.models.map((m,idx)=>{
-    // Sanitización y parseo de las URLs para el visor HTML
     let hrefAttr = '';
     if(m.link) {
         let safeLink = m.link.trim();
@@ -491,7 +663,7 @@ function renderNave(nave, index, total){
     return `<div class="model-chip">
       ${hrefAttr}
       <span>${m.name}</span>
-      <div style="display:flex; gap:4px">
+      <div style="display:flex; gap:4px" class="only-editable">
         <button class="edit-model" title="Editar modelo y enlace" onclick="openEditModel('${nave.id}', ${idx})"><i class="ti ti-pencil"></i></button>
         <button class="del-model" title="Quitar modelo" onclick="removeModel('${nave.id}', ${idx})"><i class="ti ti-x"></i></button>
       </div>
@@ -502,7 +674,7 @@ function renderNave(nave, index, total){
     <div class="section-block">
       <div class="section-header">
         <span class="section-pill pill-error"><i class="ti ti-alert-circle" style="font-size:13px"></i> Reporte de errores y ajustes</span>
-        <button class="btn btn-xs btn-ghost" onclick="openAddItem('${nave.id}','error')"><i class="ti ti-plus" style="font-size:12px"></i> Agregar</button>
+        <button class="btn btn-xs btn-ghost only-editable" onclick="openAddItem('${nave.id}','error')"><i class="ti ti-plus" style="font-size:12px"></i> Agregar</button>
       </div>
       ${errors.length?errors.map(i=>renderItemCard(i,nave.id)).join(''):'<div class="empty-section">Sin errores registrados.</div>'}
     </div>`:''
@@ -511,7 +683,7 @@ function renderNave(nave, index, total){
     <div class="section-block">
       <div class="section-header">
         <span class="section-pill pill-mejora"><i class="ti ti-sparkles" style="font-size:13px"></i> Mejoras implementadas</span>
-        <button class="btn btn-xs btn-ghost" onclick="openAddItem('${nave.id}','mejora')"><i class="ti ti-plus" style="font-size:12px"></i> Agregar</button>
+        <button class="btn btn-xs btn-ghost scholarly only-editable" onclick="openAddItem('${nave.id}','mejora')"><i class="ti ti-plus" style="font-size:12px"></i> Agregar</button>
       </div>
       ${mejoras.length?mejoras.map(i=>renderItemCard(i,nave.id)).join(''):'<div class="empty-section">Sin mejoras registradas.</div>'}
     </div>`:''
@@ -522,7 +694,7 @@ function renderNave(nave, index, total){
         <span class="nave-badge">${nave.nave}</span>
         <span class="nave-title">${nave.consola}</span>
       </div>
-      <div class="nave-header-right">
+      <div class="nave-header-right only-editable">
         ${index > 0 ? `<button class="hbtn" onclick="moveNaveUp(${index})" title="Mover arriba"><i class="ti ti-arrow-up"></i></button>` : ''}
         ${index < total - 1 ? `<button class="hbtn" onclick="moveNaveDown(${index})" title="Mover abajo"><i class="ti ti-arrow-down"></i></button>` : ''}
         <button class="hbtn" onclick="openAddItem('${nave.id}','mejora')"><i class="ti ti-plus"></i> Elemento</button>
@@ -534,7 +706,7 @@ function renderNave(nave, index, total){
         <div>
           <div class="panel-label">Modelos</div>
           <div class="models-chip-list">${modelsHtml}</div>
-          <div class="add-model-row">
+          <div class="add-model-row only-editable">
             <input id="addm-${nave.id}" placeholder="Nuevo código" onkeydown="if(event.key==='Enter')addModel('${nave.id}')" />
             <button class="btn btn-xs" onclick="addModel('${nave.id}')"><i class="ti ti-plus"></i></button>
           </div>
@@ -544,7 +716,7 @@ function renderNave(nave, index, total){
           ${galleryHtml}
         </div>
       </div>
-      <div class="nave-right">${errSection}${mejSection}</div>
+      <div class="nave-body-right right" style="flex:1; padding:18px;">${errSection}${mejSection}</div>
     </div>
   </div>`;
 }
@@ -559,6 +731,7 @@ function viewImage(src) {
 
 /* ---- Mover Naves Arriba/Abajo ---- */
 function moveNaveUp(idx){
+  if (!isEditableMode) return;
   if(idx > 0){
     const temp = data.naves[idx - 1];
     data.naves[idx - 1] = data.naves[idx];
@@ -567,6 +740,7 @@ function moveNaveUp(idx){
   }
 }
 function moveNaveDown(idx){
+  if (!isEditableMode) return;
   if(idx < data.naves.length - 1){
     const temp = data.naves[idx + 1];
     data.naves[idx + 1] = data.naves[idx];
@@ -577,6 +751,7 @@ function moveNaveDown(idx){
 
 /* ---- Models Management ---- */
 function addModel(naveId){
+  if (!isEditableMode) return;
   const inp=document.getElementById('addm-'+naveId);
   const val=inp.value.trim().toUpperCase();
   if(!val)return;
@@ -586,11 +761,13 @@ function addModel(naveId){
   render();
 }
 function removeModel(naveId,idx){
+  if (!isEditableMode) return;
   const nave=data.naves.find(n=>n.id===naveId);
   if(nave){nave.models.splice(idx,1);render();}
 }
 
 function openEditModel(naveId, idx){
+  if (!isEditableMode) return;
   const nave = data.naves.find(n => n.id === naveId);
   const model = nave.models[idx];
   document.getElementById('edit-model-nave-id').value = naveId;
@@ -600,6 +777,7 @@ function openEditModel(naveId, idx){
   document.getElementById('modal-edit-model').classList.add('open');
 }
 function saveEditedModel(){
+  if (!isEditableMode) return;
   const naveId = document.getElementById('edit-model-nave-id').value;
   const idx = parseInt(document.getElementById('edit-model-idx').value);
   const name = document.getElementById('edit-model-name').value.trim();
@@ -614,8 +792,13 @@ function saveEditedModel(){
 }
 
 /* ---- Image Management ---- */
-function triggerImg(id){currentImgNaveId=id;document.getElementById('img-input').click();}
+function triggerImg(id){
+  if (!isEditableMode) return;
+  currentImgNaveId=id;
+  document.getElementById('img-input').click();
+}
 function handleImg(e){
+  if (!isEditableMode) return;
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=ev=>{
@@ -628,21 +811,22 @@ function handleImg(e){
   reader.readAsDataURL(file);e.target.value='';
 }
 function removeImg(naveId, imgIdx){
+  if (!isEditableMode) return;
   const n=data.naves.find(x=>x.id===naveId);
   if(n){n.images.splice(imgIdx, 1);render();}
 }
 
 /* ---- Pegar Imagen (Ctrl+V) ---- */
 document.addEventListener('paste', function(e) {
+  if (!isEditableMode) return;
   let targetId = currentImgNaveId;
-  // Si no hay nave enfocada pero solo hay un mueble, lo seleccionamos
   if (!targetId && data.naves.length === 1) targetId = data.naves[0].id;
   if (!targetId) return;
 
   const items = (e.clipboardData || e.originalEvent.clipboardData).items;
   for (let i = 0; i < items.length; i++) {
     if (items[i].type.indexOf('image') !== -1) {
-      e.preventDefault(); // Prevenir que pegue en inputs si es imagen
+      e.preventDefault();
       const blob = items[i].getAsFile();
       const reader = new FileReader();
       reader.onload = (ev) => {
@@ -655,13 +839,14 @@ document.addEventListener('paste', function(e) {
         }
       };
       reader.readAsDataURL(blob);
-      break; // Solo pegamos la primera imagen detectada
+      break;
     }
   }
 });
 
 /* ---- Importar Archivos Anteriores ---- */
 function triggerImport() {
+  if (!isEditableMode) return;
   document.getElementById('import-input').click();
 }
 function handleImport(e) {
@@ -687,7 +872,7 @@ function handleImport(e) {
     }
   };
   reader.readAsText(file);
-  e.target.value = ''; // Reset input
+  e.target.value = '';
 }
 function mergeData(importedData) {
   if (!importedData || !importedData.naves) return;
@@ -739,9 +924,17 @@ function mergeData(importedData) {
 }
 
 /* ---- Edit item inline ---- */
-function startEdit(itemId){editingItemId=itemId;render();}
-function cancelEdit(){editingItemId=null;render();}
+function startEdit(itemId){
+  if (!isEditableMode) return;
+  editingItemId=itemId;
+  render();
+}
+function cancelEdit(){
+  editingItemId=null;
+  render();
+}
 function saveEdit(naveId,itemId){
+  if (!isEditableMode) return;
   const t=document.getElementById('et-'+itemId).value.trim();
   const d=document.getElementById('ed-'+itemId).value.trim();
   if(!t)return;
@@ -752,6 +945,7 @@ function saveEdit(naveId,itemId){
 
 /* ---- Add item modal ---- */
 function openAddItem(naveId,defaultCat){
+  if (!isEditableMode) return;
   currentNaveId=naveId;
   document.getElementById('new-item-title').value='';
   document.getElementById('new-item-desc').value='';
@@ -767,6 +961,7 @@ function selectCat(el,val){
   el.classList.add('selected');
 }
 function saveItem(){
+  if (!isEditableMode) return;
   const title=document.getElementById('new-item-title').value.trim();
   const desc=document.getElementById('new-item-desc').value.trim();
   if(!title){document.getElementById('new-item-title').focus();return;}
@@ -786,13 +981,20 @@ function saveItem(){
   closeModal('modal-item');render();
 }
 
-function removeNave(id){if(!confirm('¿Eliminar este mueble?'))return;data.naves=data.naves.filter(n=>n.id!==id);render();}
+function removeNave(id){
+  if (!isEditableMode) return;
+  if(!confirm('¿Eliminar este mueble?'))return;
+  data.naves=data.naves.filter(n=>n.id!==id);
+  render();
+}
 function removeItem(naveId,itemId){
+  if (!isEditableMode) return;
   const nave=data.naves.find(n=>n.id===naveId);
   if(nave){nave.items=nave.items.filter(i=>i.id!==itemId);render();}
 }
 
 function openAddNave(){
+  if (!isEditableMode) return;
   newModels=[];newNaveSelected='NAVE 2';newTipo='ambos';
   document.getElementById('new-consola').value='';
   document.getElementById('tag-input').value='';
@@ -818,13 +1020,17 @@ function renderTags(){
   area.innerHTML='';
   newModels.forEach((m,i)=>{
     const tag=document.createElement('div');tag.className='model-tag';
-    tag.innerHTML=`${m}<button onclick="removeTag(${i})" title="Quitar"><i class="ti ti-x"></i></button>`;
+    tag.innerHTML=`${m}<button onclick="removeTag(${i})" title="Quitar" class="only-editable"><i class="ti ti-x"></i></button>`;
     area.appendChild(tag);
   });
   area.appendChild(inp);
 }
-function removeTag(i){newModels.splice(i,1);renderTags();}
+function removeTag(i){
+  if (!isEditableMode) return;
+  newModels.splice(i,1);renderTags();
+}
 function handleTagKey(e){
+  if (!isEditableMode) return;
   const inp=e.target;
   if(e.key==='Enter'||e.key===','||e.key==='Tab'){
     e.preventDefault();
@@ -835,6 +1041,7 @@ function handleTagKey(e){
   }
 }
 function handleTagInput(e){
+  if (!isEditableMode) return;
   const val=e.target.value;
   if(val.includes(',')){
     const parts=val.split(',');
@@ -844,6 +1051,7 @@ function handleTagInput(e){
   }
 }
 function addNave(){
+  if (!isEditableMode) return;
   const consola=document.getElementById('new-consola').value.trim().toUpperCase();
   const tagVal=document.getElementById('tag-input').value.trim().toUpperCase();
   if(tagVal&&!newModels.includes(tagVal))newModels.push(tagVal);
@@ -853,7 +1061,7 @@ function addNave(){
   closeModal('modal-nave');render();
 }
 
-/* ---- Exportar Archivos y Sobrescritura en Edge/Chrome ---- */
+/* ---- Exportar Archivos ---- */
 async function downloadWithDialog(content, fileName, type) {
   try {
     if (window.showSaveFilePicker) {
@@ -893,7 +1101,6 @@ async function downloadWithDialog(content, fileName, type) {
 
 function openExport(type){
   exportType=type;
-  
   if(type === 'html' && fileHandle && window.showSaveFilePicker) {
      doExport(true);
      return;
@@ -922,7 +1129,15 @@ async function exportHTMLAsSaveGame(name) {
   const originalText = btn.textContent;
   btn.textContent = 'Guardando...';
   
+  // Clonar asegurando guardar en modo protegido (is-locked) por defecto
   const clone = document.documentElement.cloneNode(true);
+  clone.querySelector('body').classList.add('is-locked');
+  const lockBtn = clone.querySelector('#btn-lock-toggle');
+  if(lockBtn) {
+    lockBtn.className = 'btn btn-amber';
+    lockBtn.innerHTML = '<i class="ti ti-lock"></i> MODO LECTURA 🔒';
+  }
+  
   clone.querySelector('#naves-container').innerHTML = ''; 
   clone.querySelectorAll('.modal-bg').forEach(m => m.classList.remove('open')); 
 
@@ -999,15 +1214,12 @@ function exportPDFStatic(name) {
 
     const modelsHtml = nave.models.map(m => {
       if(!m.link) return `<span class="chip">${m.name}</span>`;
-      
-      // Parsear la URL para asegurar que sea válida en el PDF
       let href = m.link.trim();
       if(href.startsWith('\\\\')) {
         href = 'file:' + href.replace(/\\/g, '/');
       } else if (!/^https?:\/\//i.test(href) && !href.startsWith('file:')) {
         href = 'http://' + href;
       }
-
       return `<a href="${href}" target="_blank" class="chip">${m.name} 🔗</a>`;
     }).join('');
 
@@ -1040,8 +1252,6 @@ function exportPDFStatic(name) {
     enableLinks:  true
   };
 
-  // FIX: Se le pasa el código HTML (variable h) directamente a html2pdf
-  // Esto permite que cree su propio iframe renderizable con dimensiones reales en lugar de un elemento oculto.
   html2pdf().set(opt).from(h).output('blob').then(async (blob) => {
     btn.textContent = 'Exportar PDF Final';
     await downloadWithDialog(blob, name + '.pdf', 'pdf');
@@ -1057,7 +1267,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 <script id="data-override-script">
 // -- DATOS GUARDADOS AUTOMÁTICAMENTE -- 
-data = {"naves":[]};
+data = {"naves":[], "accessPasswords":["Inge10306","Inge08722"]};
 render();
 </script>
 </body>
