@@ -55,6 +55,7 @@ body{font-family:var(--font-sans);background:
 .btn-sm{padding:6px 12px;font-size:12px}
 .btn-xs{padding:4px 10px;font-size:11px;border-radius:999px}
 .btn-amber{background:linear-gradient(135deg,var(--amber),#c27313);color:#fff;border-color:transparent}.btn-amber:hover{background:linear-gradient(135deg,#c27313,var(--amber));box-shadow:0 8px 18px -4px rgba(224,138,30,0.45)}
+.btn-github{background:linear-gradient(135deg,#24292e,#1a1e22);color:#fff;border-color:transparent}.btn-github:hover{background:linear-gradient(135deg,#1a1e22,#24292e);box-shadow:0 8px 18px -4px rgba(36,41,46,0.45)}
 
 /* Control de Edición Global */
 body.is-locked .only-editable { display: none !important; }
@@ -252,6 +253,7 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
       <button class="btn btn-green only-editable" onclick="triggerImport()" title="Recupera información de un archivo anterior"><i class="ti ti-upload" aria-hidden="true"></i> Importar Datos</button>
       <button class="btn btn-purple only-editable" onclick="openAddNave()"><i class="ti ti-plus" aria-hidden="true"></i> Nuevo mueble</button>
       <button class="btn only-editable" onclick="openExport('html')" title="Guarda el proyecto en el archivo original de forma rápida"><i class="ti ti-device-floppy" aria-hidden="true"></i> Guardar Proyecto (HTML)</button>
+      <button class="btn btn-github only-editable" onclick="openGithubModal()" title="Sube los cambios directamente a un repositorio de GitHub"><i class="ti ti-brand-github" aria-hidden="true"></i> Guardar en GitHub</button>
       <button class="btn btn-navy" onclick="openExport('pdf')" title="Exporta un documento limpio listo para imprimir"><i class="ti ti-file-text" aria-hidden="true"></i> Exportar PDF Final</button>
     </div>
   </div>
@@ -410,6 +412,47 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
     <div class="form-footer">
       <button class="btn" onclick="closeModal('modal-export')">Cancelar</button>
       <button class="btn btn-navy" onclick="doExport()" id="export-btn">Guardando...</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Guardar en GitHub -->
+<div class="modal-bg" id="modal-github">
+  <div class="modal" style="width:460px">
+    <div class="modal-header">
+      <h2><i class="ti ti-brand-github" style="vertical-align:-2px;margin-right:6px"></i>Guardar en GitHub</h2>
+      <button class="btn-ghost btn" onclick="closeModal('modal-github')"><i class="ti ti-x"></i></button>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-top:-6px;margin-bottom:14px;line-height:1.45">
+      Sube esta copia del proyecto (con tus cambios) directamente a un archivo dentro de un repositorio de GitHub, sobrescribiéndolo.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Repositorio (usuario/repositorio)</label>
+      <input class="form-input" type="text" id="gh-repo" placeholder="ej. javier/reportes-produccion">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ruta del archivo dentro del repo</label>
+      <input class="form-input" type="text" id="gh-path" placeholder="ej. BETA_FN02.html">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Rama</label>
+      <input class="form-input" type="text" id="gh-branch" placeholder="main" value="main">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Token de acceso personal (GitHub)</label>
+      <input class="form-input" type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      <p style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;line-height:1.4">
+        Necesita permiso "repo" (o "Contents: Read and write" si es un token fino). Se guarda solo en este navegador, nunca se comparte con nadie más.
+      </p>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:8px;margin-bottom:0;">
+      <input type="checkbox" id="gh-remember" style="width:16px;height:16px;cursor:pointer" checked>
+      <label for="gh-remember" style="font-size:12px;font-weight:600;color:var(--color-text-secondary);cursor:pointer">Recordar estos datos en este navegador</label>
+    </div>
+    <p id="gh-status" style="font-size:12px;margin-top:14px;line-height:1.4;display:none"></p>
+    <div class="form-footer">
+      <button class="btn" onclick="closeModal('modal-github')">Cancelar</button>
+      <button class="btn btn-github" onclick="pushToGithub()" id="gh-save-btn"><i class="ti ti-brand-github"></i> Subir cambios</button>
     </div>
   </div>
 </div>
@@ -1124,11 +1167,123 @@ function doExport(skipModal = false){
   else exportPDFStatic(name);
 }
 
-async function exportHTMLAsSaveGame(name) {
-  const btn = document.getElementById('export-btn');
-  const originalText = btn.textContent;
-  btn.textContent = 'Guardando...';
-  
+/* ---- Guardar en GitHub ---- */
+const GH_CONFIG_KEY = 'reporte_produccion_gh_config';
+
+function loadGithubConfig() {
+  try {
+    const raw = localStorage.getItem(GH_CONFIG_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function openGithubModal() {
+  const cfg = loadGithubConfig();
+  document.getElementById('gh-repo').value = cfg && cfg.repo ? cfg.repo : '';
+  document.getElementById('gh-path').value = cfg && cfg.path ? cfg.path : '';
+  document.getElementById('gh-branch').value = cfg && cfg.branch ? cfg.branch : 'main';
+  document.getElementById('gh-token').value = cfg && cfg.token ? cfg.token : '';
+  document.getElementById('gh-remember').checked = cfg ? true : true;
+  const status = document.getElementById('gh-status');
+  status.style.display = 'none';
+  status.textContent = '';
+  document.getElementById('modal-github').classList.add('open');
+}
+
+function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  const chunkSize = 0x8000;
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+function setGithubStatus(msg, type) {
+  const status = document.getElementById('gh-status');
+  status.style.display = 'block';
+  status.style.color = type === 'error' ? 'var(--red)' : (type === 'ok' ? 'var(--green)' : 'var(--color-text-secondary)');
+  status.textContent = msg;
+}
+
+async function pushToGithub() {
+  const repo = document.getElementById('gh-repo').value.trim();
+  const path = document.getElementById('gh-path').value.trim().replace(/^\/+/, '');
+  const branch = document.getElementById('gh-branch').value.trim() || 'main';
+  const token = document.getElementById('gh-token').value.trim();
+  const remember = document.getElementById('gh-remember').checked;
+
+  if (!repo || !path || !token) {
+    setGithubStatus('Completa repositorio, ruta del archivo y token.', 'error');
+    return;
+  }
+  if (!/^[^\/\s]+\/[^\/\s]+$/.test(repo)) {
+    setGithubStatus('El repositorio debe tener el formato usuario/repositorio.', 'error');
+    return;
+  }
+
+  if (remember) {
+    localStorage.setItem(GH_CONFIG_KEY, JSON.stringify({ repo, path, branch, token }));
+  } else {
+    localStorage.removeItem(GH_CONFIG_KEY);
+  }
+
+  const btn = document.getElementById('gh-save-btn');
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = 'Subiendo...';
+  btn.disabled = true;
+  setGithubStatus('Conectando con GitHub...', 'info');
+
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${path.split('/').map(encodeURIComponent).join('/')}`;
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github+json'
+  };
+
+  try {
+    // 1. Obtener el sha actual del archivo (si existe) para poder sobrescribirlo
+    let sha = undefined;
+    const getResp = await fetch(`${apiUrl}?ref=${encodeURIComponent(branch)}`, { headers });
+    if (getResp.status === 200) {
+      const info = await getResp.json();
+      sha = info.sha;
+    } else if (getResp.status !== 404) {
+      const errBody = await getResp.json().catch(() => ({}));
+      throw new Error(`No se pudo consultar el archivo (${getResp.status}): ${errBody.message || 'error desconocido'}`);
+    }
+
+    // 2. Construir el HTML actualizado y subirlo
+    const htmlString = buildProjectHTMLString();
+    const contentBase64 = utf8ToBase64(htmlString);
+
+    const putResp = await fetch(apiUrl, {
+      method: 'PUT',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: `Actualización del reporte desde la app (${new Date().toLocaleString('es-MX')})`,
+        content: contentBase64,
+        branch: branch,
+        ...(sha ? { sha } : {})
+      })
+    });
+
+    if (!putResp.ok) {
+      const errBody = await putResp.json().catch(() => ({}));
+      throw new Error(`GitHub respondió ${putResp.status}: ${errBody.message || 'error desconocido'}`);
+    }
+
+    setGithubStatus('✅ Cambios subidos correctamente a GitHub.', 'ok');
+  } catch (err) {
+    console.error('Error al subir a GitHub:', err);
+    setGithubStatus('❌ ' + (err.message || 'No se pudo conectar con GitHub. Verifica el token y el repositorio.'), 'error');
+  } finally {
+    btn.innerHTML = originalHtml;
+    btn.disabled = false;
+  }
+}
+
+function buildProjectHTMLString() {
   // Clonar asegurando guardar en modo protegido (is-locked) por defecto
   const clone = document.documentElement.cloneNode(true);
   clone.querySelector('body').classList.add('is-locked');
@@ -1137,9 +1292,9 @@ async function exportHTMLAsSaveGame(name) {
     lockBtn.className = 'btn btn-amber';
     lockBtn.innerHTML = '<i class="ti ti-lock"></i> MODO LECTURA 🔒';
   }
-  
-  clone.querySelector('#naves-container').innerHTML = ''; 
-  clone.querySelectorAll('.modal-bg').forEach(m => m.classList.remove('open')); 
+
+  clone.querySelector('#naves-container').innerHTML = '';
+  clone.querySelectorAll('.modal-bg').forEach(m => m.classList.remove('open'));
 
   const oldOverride = clone.querySelector('#data-override-script');
   if (oldOverride) oldOverride.remove();
@@ -1149,7 +1304,15 @@ async function exportHTMLAsSaveGame(name) {
   script.textContent = `\n// -- DATOS GUARDADOS AUTOMÁTICAMENTE -- \ndata = ${JSON.stringify(data)};\nrender();\n`;
   clone.querySelector('body').appendChild(script);
 
-  const htmlString = '<!DOCTYPE html>\n' + clone.outerHTML;
+  return '<!DOCTYPE html>\n' + clone.outerHTML;
+}
+
+async function exportHTMLAsSaveGame(name) {
+  const btn = document.getElementById('export-btn');
+  const originalText = btn.textContent;
+  btn.textContent = 'Guardando...';
+
+  const htmlString = buildProjectHTMLString();
   await downloadWithDialog(htmlString, name + '.html', 'html');
   
   btn.textContent = originalText;
