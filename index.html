@@ -424,15 +424,21 @@ textarea.form-input { resize: vertical; min-height: 80px; line-height: 1.5; }
       <button class="btn-ghost btn" onclick="closeModal('modal-github')"><i class="ti ti-x"></i></button>
     </div>
     <p style="font-size:12px;color:var(--color-text-secondary);margin-top:-6px;margin-bottom:14px;line-height:1.45">
-      Sube esta copia del proyecto (con tus cambios) directamente a un archivo dentro de un repositorio de GitHub, sobrescribiéndolo.
+      Sube esta copia del proyecto (con tus cambios) directamente a un archivo dentro de un repositorio de GitHub, <b>sobrescribiendo siempre ese mismo archivo</b> (no crea copias nuevas) mientras uses la misma ruta y rama.
     </p>
     <div class="form-group">
-      <label class="form-label">Repositorio (usuario/repositorio)</label>
-      <input class="form-input" type="text" id="gh-repo" placeholder="ej. javier/reportes-produccion">
+      <label class="form-label">Repositorio</label>
+      <input class="form-input" type="text" id="gh-repo" placeholder="ej. javiera-sys/PROCESO-DE-PRODUCCION">
+      <p style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;line-height:1.4">
+        Formato <b>usuario/repositorio</b> (no la URL del sitio publicado). Si pegas un link de github.com o de tu página *.github.io, se convierte automáticamente.
+      </p>
     </div>
     <div class="form-group">
       <label class="form-label">Ruta del archivo dentro del repo</label>
       <input class="form-input" type="text" id="gh-path" placeholder="ej. BETA_FN02.html">
+      <p style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;line-height:1.4">
+        Debe ser exactamente el mismo nombre/ruta cada vez que guardes, para que se sobrescriba en vez de crear un archivo nuevo.
+      </p>
     </div>
     <div class="form-group">
       <label class="form-label">Rama</label>
@@ -1207,8 +1213,28 @@ function setGithubStatus(msg, type) {
   status.textContent = msg;
 }
 
+function normalizeRepoInput(raw) {
+  let v = raw.trim().replace(/\/+$/, '');
+
+  // https://github.com/usuario/repositorio(/...)
+  let m = v.match(/^https?:\/\/(?:www\.)?github\.com\/([^\/]+)\/([^\/]+)/i);
+  if (m) return `${m[1]}/${m[2].replace(/\.git$/i, '')}`;
+
+  // https://usuario.github.io/repositorio(/...)  -> sitio de proyecto
+  m = v.match(/^https?:\/\/([^.\/]+)\.github\.io\/([^\/]+)/i);
+  if (m) return `${m[1]}/${m[2]}`;
+
+  // https://usuario.github.io  (sin ruta)         -> sitio de usuario/organización
+  m = v.match(/^https?:\/\/([^.\/]+)\.github\.io\/?$/i);
+  if (m) return `${m[1]}/${m[1]}.github.io`;
+
+  // ya viene como usuario/repositorio
+  return v.replace(/^\/+/, '');
+}
+
 async function pushToGithub() {
-  const repo = document.getElementById('gh-repo').value.trim();
+  const repo = normalizeRepoInput(document.getElementById('gh-repo').value);
+  document.getElementById('gh-repo').value = repo;
   const path = document.getElementById('gh-path').value.trim().replace(/^\/+/, '');
   const branch = document.getElementById('gh-branch').value.trim() || 'main';
   const token = document.getElementById('gh-token').value.trim();
